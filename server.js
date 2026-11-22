@@ -21,7 +21,7 @@ http.createServer(async (req, res) => {
       if (!text?.trim()) return json(res, 400, { error: "Prázdný diktát." });
       return json(res, 200, await zpracuj(text, settings || {}));
     }
-    const rel = p === "/" ? "index.html" : p === "/n" || p === "/n/" ? "nabidka.html" : p.slice(1);
+    const rel = p === "/" ? "index.html" : p === "/app" ? "app.html" : p === "/n" || p === "/n/" ? "nabidka.html" : p.slice(1);
     const file = path.normalize(path.join(PUBLIC, rel));
     if (!file.startsWith(PUBLIC)) return json(res, 403, { error: "Forbidden" });
     const data = await fs.readFile(file).catch(() => null);

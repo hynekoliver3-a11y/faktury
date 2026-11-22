@@ -2,145 +2,187 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nabídka z hlasu – cenová nabídka za dvě minuty, rovnou z telefonu</title>
+<meta name="description" content="Pro řemeslníky a živnostníky. Nadiktuj zakázku do telefonu a zákazník dostane čistou cenovou nabídku s DPH ještě dřív, než odjedeš od domu.">
 <meta name="theme-color" content="#e8590c">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Nabídka z hlasu</title>
-<link rel="manifest" href="/manifest.webmanifest">
+<meta property="og:title" content="Nabídka z hlasu">
+<meta property="og:description" content="Nadiktuj zakázku, zákazník dostane čistou cenovou nabídku. Za dvě minuty, z telefonu.">
+<meta property="og:type" content="website">
 <link rel="icon" href="/icon.svg">
-<link rel="apple-touch-icon" href="/icon.svg">
 <link rel="stylesheet" href="/style.css">
+<style>
+  body { background: var(--bg); }
+  .lp { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: inherit; text-decoration: none; }
+  .nav .brand img { width: 32px; height: 32px; }
+  .nav .btn { white-space: nowrap; }
+
+  .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; padding: 40px 0 72px; }
+  .eyebrow { display: inline-block; font-size: 13px; font-weight: 600; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); padding: 4px 10px; border-radius: 999px; margin-bottom: 16px; }
+  .hero h1 { font-size: clamp(34px, 5.4vw, 58px); line-height: 1.04; letter-spacing: -.02em; margin: 0 0 18px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .lead { font-size: clamp(17px, 2vw, 20px); color: var(--muted); max-width: 34em; margin: 0 0 28px; }
+  .cta { display: flex; gap: 10px; flex-wrap: wrap; }
+  .cta .btn { padding: 14px 22px; font-size: 17px; }
+  .fine { margin-top: 14px; font-size: 14px; color: var(--muted); }
+
+  /* Ukázka: diktát → nabídka */
+  .demo { position: relative; }
+  .bubble { background: var(--card); border: 1px solid var(--line); border-radius: 18px 18px 18px 4px; padding: 14px 16px; font-size: 15px; box-shadow: 0 8px 30px rgb(0 0 0 / .06); max-width: 92%; }
+  .bubble .who { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .bubble .who span { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; color: #fff; font-size: 12px; }
+  .arrow { text-align: center; color: var(--accent); font-size: 26px; margin: 10px 0; }
+  .mini { background: #fff; color: #1d1d1b; border-radius: 16px; padding: 18px; border: 1px solid var(--line); box-shadow: 0 14px 40px rgb(0 0 0 / .10); margin-left: 8%; font-size: 13.5px; }
+  .mini .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #e8590c; font-weight: 700; }
+  .mini h3 { font-size: 17px; margin: 2px 0 10px; }
+  .mini table { width: 100%; border-collapse: collapse; }
+  .mini td { padding: 5px 0; border-bottom: 1px solid #eee; }
+  .mini td:last-child { text-align: right; white-space: nowrap; }
+  .mini .tot { display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; margin-top: 10px; padding-top: 8px; border-top: 2px solid #1d1d1b; }
+  .mini .ok { margin-top: 12px; background: #e8590c; color: #fff; text-align: center; border-radius: 10px; padding: 8px; font-weight: 600; }
+
+  section.block { padding: 64px 0; border-top: 1px solid var(--line); }
+  .block h2 { font-size: clamp(26px, 3.4vw, 36px); letter-spacing: -.01em; margin: 0 0 10px; }
+  .block .sub { color: var(--muted); font-size: 18px; margin: 0 0 32px; max-width: 40em; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: s; }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  .step::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--text); color: var(--bg); font-weight: 700; margin-bottom: 14px; }
+  .step h3 { font-size: 18px; }
+  .step p { color: var(--muted); margin: 0; }
+
+  .feats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 40px; }
+  .feat { display: flex; gap: 14px; padding: 10px 0; }
+  .feat .ic { flex: none; width: 40px; height: 40px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 14%, transparent); display: grid; place-items: center; font-size: 20px; }
+  .feat h3 { font-size: 17px; margin: 0 0 4px; }
+  .feat p { margin: 0; color: var(--muted); }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .compare .card { margin: 0; }
+  .compare h3 { font-size: 16px; margin-bottom: 12px; }
+  .compare ul { margin: 0; padding-left: 20px; color: var(--muted); }
+  .compare li { margin: 6px 0; }
+  .compare .good { border-color: var(--accent); }
+  .compare .good h3 { color: var(--accent); }
+
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { font-weight: 600; cursor: pointer; }
+  details p { color: var(--muted); margin: 10px 0 0; }
+
+  .final { text-align: center; padding: 72px 0; border-top: 1px solid var(--line); }
+  .final h2 { font-size: clamp(28px, 4vw, 42px); margin-bottom: 12px; }
+  .final p { color: var(--muted); font-size: 18px; margin: 0 0 24px; }
+  footer { padding: 28px 0 40px; color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--line); }
+  footer a { color: inherit; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 16px; }
+    .steps, .feats, .compare { grid-template-columns: 1fr; }
+    .mini { margin-left: 4%; }
+  }
+</style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="brand">🎙️ Nabídka z hlasu</div>
-    <nav class="tabs">
-      <button data-tab="nova" class="active">Nová</button>
-      <button data-tab="historie">Nabídky</button>
-      <button data-tab="nastaveni">Nastavení</button>
-    </nav>
-  </div>
+<div class="lp">
+  <nav class="nav">
+    <a class="brand" href="/"><img src="/icon.svg" alt="">Nabídka z hlasu</a>
+    <a class="btn sm primary" href="/app">Otevřít aplikaci</a>
+  </nav>
 
-  <!-- ===== NOVÁ: krok 1 diktát ===== -->
-  <section id="tab-nova">
-    <div id="krok-diktat">
-      <div id="setup-hint" class="warn hidden" style="margin-bottom:14px">
-        Nejdřív vyplňte <a href="#" data-goto="nastaveni">Nastavení</a> — jméno firmy, IČO a hodinovou sazbu. Objeví se na každé nabídce.
+  <header class="hero">
+    <div>
+      <div class="eyebrow">Pro řemeslníky a živnostníky</div>
+      <h1>Nabídku pošleš <em>dřív, než odjedeš</em> od zákazníka.</h1>
+      <p class="lead">Nadiktuj zakázku do telefonu tak, jak bys ji říkal kolegovi. Aplikace z toho udělá čistou cenovou nabídku s položkami a DPH. Zákazník ji dostane odkazem do SMS nebo WhatsAppu.</p>
+      <div class="cta">
+        <a class="btn primary" href="/app">Vyzkoušet zdarma</a>
+        <a class="btn" href="#jak">Jak to funguje</a>
       </div>
-      <div class="card mic-area">
-        <button id="mic" class="mic" aria-label="Nahrávat">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2Z"/></svg>
-        </button>
-        <div class="mic-label" id="mic-label">Klepněte a popište zakázku</div>
-        <div class="muted small" id="mic-sub">Kdo, co, kolik hodin, materiál, ceny. Mluvte normálně.</div>
-      </div>
-      <div class="card">
-        <label for="diktat" style="margin-top:0">Přepis (můžete upravit nebo psát)</label>
-        <textarea id="diktat" placeholder="Např.: Pan Novák, Dlouhá 12 Brno, telefon 777 123 456. Výměna vodovodní baterie v koupelně a sifonu pod umyvadlem. Práce dvě hodiny. Baterie Grohe 2 400 korun, sifon 350. Doprava 25 kilometrů. Termín příští týden."></textarea>
-        <div class="row" style="margin-top:12px">
-          <button class="btn" id="vymazat">Vymazat</button>
-          <button class="btn primary" id="vytvorit">Vytvořit nabídku</button>
-        </div>
-        <div class="muted small" id="ai-status" style="margin-top:8px"></div>
-      </div>
+      <div class="fine">Bez registrace. Funguje v prohlížeči na iPhonu i Androidu.</div>
     </div>
 
-    <!-- ===== NOVÁ: krok 2 editace ===== -->
-    <div id="krok-edit" class="hidden">
-      <div id="chybi" class="warn hidden" style="margin-bottom:14px"></div>
-
-      <div class="card">
-        <label style="margin-top:0">Předmět nabídky</label>
-        <input id="predmet">
-        <div class="grid2">
-          <div><label>Zákazník</label><input id="z-jmeno" autocomplete="off"></div>
-          <div><label>Telefon</label><input id="z-telefon" type="tel" autocomplete="off"></div>
-          <div><label>E-mail</label><input id="z-email" type="email" autocomplete="off"></div>
-          <div><label>Adresa</label><input id="z-adresa" autocomplete="off"></div>
-        </div>
+    <div class="demo" aria-label="Ukázka: diktát se změní na cenovou nabídku">
+      <div class="bubble">
+        <div class="who"><span>🎙️</span> Tvůj diktát</div>
+        „Pan Novák, Dlouhá 12. Výměna baterie v koupelně a sifonu. Práce dvě hodiny, baterie Grohe dva tisíce čtyři sta, sifon tři sta padesát. Doprava dvacet pět kilometrů.“
       </div>
-
-      <div class="card">
-        <h2>Položky</h2>
-        <div id="polozky"></div>
-        <button class="btn sm" id="pridat">+ Přidat položku</button>
-        <div class="totals" id="souhrn"></div>
-      </div>
-
-      <div class="card">
-        <label style="margin-top:0">Poznámka pro zákazníka</label>
-        <textarea id="poznamka" style="min-height:70px"></textarea>
-        <div class="grid2">
-          <div><label>Číslo nabídky</label><input id="cislo"></div>
-          <div><label>Platnost (dní)</label><input id="platnost" type="number" min="1" inputmode="numeric"></div>
-        </div>
-      </div>
-
-      <div class="sticky no-print">
-        <div class="inner">
-          <button class="btn" id="zpet">← Diktát</button>
-          <button class="btn primary" id="odeslat">Odeslat zákazníkovi</button>
-        </div>
+      <div class="arrow">↓</div>
+      <div class="mini">
+        <div class="lbl">Cenová nabídka</div>
+        <h3>Výměna vodovodní baterie</h3>
+        <table>
+          <tr><td>Montáž baterie a sifonu · 2 hod</td><td>1 300 Kč</td></tr>
+          <tr><td>Baterie Grohe · 1 ks</td><td>2 400 Kč</td></tr>
+          <tr><td>Sifon pod umyvadlo · 1 ks</td><td>350 Kč</td></tr>
+          <tr><td>Doprava · 25 km</td><td>250 Kč</td></tr>
+        </table>
+        <div class="tot"><span>Celkem s DPH</span><span>5 203 Kč</span></div>
+        <div class="ok">Přijmout nabídku</div>
       </div>
     </div>
+  </header>
 
-    <!-- ===== NOVÁ: krok 3 odeslání ===== -->
-    <div id="krok-odeslat" class="hidden">
-      <div class="card">
-        <h2>✅ Nabídka je připravená</h2>
-        <p class="muted">Pošlete zákazníkovi odkaz. Uvidí čistou nabídku, stáhne si ji jako PDF a odpověď (přijmout/odmítnout) vám přijde SMS, WhatsAppem nebo e-mailem. Nabídka je uložená přímo v odkazu.</p>
-        <input id="odkaz" readonly>
-        <div class="row" style="margin-top:12px">
-          <button class="btn primary" id="sdilet">Sdílet…</button>
-          <a class="btn" id="sms">SMS</a>
-          <a class="btn" id="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
-          <a class="btn" id="mail">E-mail</a>
-          <button class="btn" id="kopirovat">Kopírovat</button>
-          <a class="btn" id="nahled" target="_blank" rel="noopener">Náhled / PDF</a>
-        </div>
-      </div>
-      <button class="btn block" id="dalsi">+ Další nabídka</button>
+  <section class="block" id="jak">
+    <h2>Tři kroky, dvě minuty</h2>
+    <p class="sub">Žádné vyplňování formulářů v autě. Mluvíš normálně, opravíš, co je potřeba, a odešleš.</p>
+    <div class="steps">
+      <div class="step"><h3>Nadiktuj</h3><p>Klepni na mikrofon a popiš práci: co, kolik hodin, jaký materiál a za kolik. Klidně hovorově.</p></div>
+      <div class="step"><h3>Zkontroluj</h3><p>Položky, množství a ceny se vyplní samy. Chybí-li někde cena, aplikace tě upozorní. Nic si nevymýšlí.</p></div>
+      <div class="step"><h3>Pošli</h3><p>Zákazník dostane odkaz na přehlednou nabídku. Stáhne si PDF a jedním klepnutím ti odpoví.</p></div>
     </div>
   </section>
 
-  <!-- ===== HISTORIE ===== -->
-  <section id="tab-historie" class="hidden">
-    <div class="card">
-      <h2>Odeslané nabídky</h2>
-      <div id="seznam"></div>
+  <section class="block">
+    <h2>Co umí</h2>
+    <p class="sub">Přesně to, co potřebuješ na jednu zakázku. Nic navíc.</p>
+    <div class="feats">
+      <div class="feat"><div class="ic">🗣️</div><div><h3>Rozumí češtině z praxe</h3><p>„Dva a půl hodiny“, „patnáct set“, „s DPH“. Čísla slovy i hovorové výrazy převede správně.</p></div></div>
+      <div class="feat"><div class="ic">🧾</div><div><h3>DPH i neplátci</h3><p>Nastavíš jednou, jestli jsi plátce. Základ, daň a celkovou částku spočítá sama.</p></div></div>
+      <div class="feat"><div class="ic">⏱️</div><div><h3>Tvoje sazby</h3><p>Hodinovou sazbu a cenu za kilometr doplní automaticky, když je v diktátu neřekneš.</p></div></div>
+      <div class="feat"><div class="ic">📲</div><div><h3>SMS, WhatsApp, e-mail</h3><p>Odkaz pošleš, kudy chceš. Zákazník nic neinstaluje.</p></div></div>
+      <div class="feat"><div class="ic">📄</div><div><h3>PDF pro zákazníka</h3><p>Čistý dokument s tvými údaji, IČO, číslem nabídky a platností. Stáhne si ho jedním klepnutím.</p></div></div>
+      <div class="feat"><div class="ic">✅</div><div><h3>Odpověď hned</h3><p>Zákazník nabídku přijme nebo odmítne a zpráva ti přijde rovnou do telefonu.</p></div></div>
     </div>
   </section>
 
-  <!-- ===== NASTAVENÍ ===== -->
-  <section id="tab-nastaveni" class="hidden">
-    <form class="card" id="nastaveni-form">
-      <h2>Vaše údaje</h2>
-      <label>Jméno / název firmy *</label><input name="nazev" required>
-      <div class="grid2">
-        <div><label>IČO</label><input name="ico" inputmode="numeric"></div>
-        <div><label>DIČ</label><input name="dic"></div>
-        <div><label>Telefon</label><input name="telefon" type="tel"></div>
-        <div><label>E-mail</label><input name="email" type="email"></div>
-      </div>
-      <label>Adresa</label><input name="adresa">
-      <label class="check"><input type="checkbox" name="platceDph"> Jsem plátce DPH</label>
-
-      <h2 style="margin-top:20px">Ceny a nabídky</h2>
-      <div class="grid2">
-        <div><label>Hodinová sazba (Kč bez DPH)</label><input name="hodinovaSazba" type="number" min="0" inputmode="decimal"></div>
-        <div><label>Doprava (Kč/km)</label><input name="cenaKm" type="number" min="0" step="0.1" inputmode="decimal"></div>
-        <div><label>Sazba DPH (%)</label><input name="sazbaDph" type="number" min="0" inputmode="numeric"></div>
-        <div><label>Platnost nabídky (dní)</label><input name="platnostDni" type="number" min="1" inputmode="numeric"></div>
-        <div><label>Předpona čísla nabídky</label><input name="prefix"></div>
-        <div><label>Další pořadové číslo</label><input name="dalsiCislo" type="number" min="1" inputmode="numeric"></div>
-      </div>
-      <button class="btn primary block" style="margin-top:16px">Uložit</button>
-      <div class="muted small" id="ulozeno" style="margin-top:8px"></div>
-    </form>
+  <section class="block">
+    <h2>Proč ne Word nebo papír</h2>
+    <p class="sub">Nabídka, která přijde do hodiny, má větší šanci než ta, kterou pošleš v neděli večer.</p>
+    <div class="compare">
+      <div class="card"><h3>Jak to bývá</h3><ul>
+        <li>Poznámky na papíře, nabídka až večer u počítače</li>
+        <li>Přepisování do Wordu nebo Excelu</li>
+        <li>Zákazník mezitím obvolal další tři firmy</li>
+      </ul></div>
+      <div class="card good"><h3>S Nabídkou z hlasu</h3><ul>
+        <li>Nabídku nadiktuješ ještě na místě nebo v autě</li>
+        <li>Položky a součty se vyplní samy</li>
+        <li>Zákazník ji má dřív než od konkurence</li>
+      </ul></div>
+    </div>
   </section>
+
+  <section class="block">
+    <h2>Časté otázky</h2>
+    <details><summary>Musím si něco instalovat?</summary><p>Ne. Otevři aplikaci v prohlížeči. Pokud ji chceš mít jako ikonu, dej v Safari nebo Chromu „Sdílet → Přidat na plochu“.</p></details>
+    <details><summary>Co když diktát špatně rozpozná?</summary><p>Přepis i všechny položky můžeš před odesláním upravit. Kde chybí cena, aplikace položku zvýrazní a nic nedoplňuje odhadem.</p></details>
+    <details><summary>Kde jsou moje data?</summary><p>Tvoje údaje a historie nabídek jsou uložené jen v tvém telefonu. Nabídka je zakódovaná přímo v odkazu, který posíláš zákazníkovi. Na server se neukládá nic. Text diktátu se jen jednorázově pošle ke zpracování AI.</p></details>
+    <details><summary>Je to faktura?</summary><p>Ne, je to cenová nabídka před zakázkou. Faktury zatím aplikace nevystavuje.</p></details>
+    <details><summary>Co to stojí?</summary><p>Teď je aplikace zdarma k vyzkoušení.</p></details>
+  </section>
+
+  <section class="final">
+    <h2>Zkus to na příští zakázce.</h2>
+    <p>Nastavení zabere minutu. První nabídku máš za dvě.</p>
+    <a class="btn primary" href="/app" style="padding:14px 26px;font-size:17px">Otevřít aplikaci</a>
+  </section>
+
+  <footer>
+    <span>© 2026 Nabídka z hlasu</span>
+    <a href="https://github.com/hynekoliver3-a11y/faktury">Zdrojový kód</a>
+  </footer>
 </div>
-
-<script type="module" src="/app.js"></script>
 </body>
 </html>

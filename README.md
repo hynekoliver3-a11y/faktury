@@ -1,5 +1,7 @@
 # Nabídka z hlasu
 
+Web: https://nabidka-z-hlasu.vercel.app (aplikace na `/app`)
+
 Řemeslník nadiktuje zakázku do telefonu → za chvíli má hotovou cenovou nabídku → pošle zákazníkovi odkaz (SMS / WhatsApp / e-mail). Zákazník vidí čistou nabídku, stáhne si PDF a odpoví vám jedním klepnutím (SMS / WhatsApp / e-mail).
 
 ## Spuštění

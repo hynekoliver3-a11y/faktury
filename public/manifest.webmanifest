@@ -2,7 +2,7 @@
   "name": "Nabídka z hlasu",
   "short_name": "Nabídky",
   "lang": "cs",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#f6f5f2",
   "theme_color": "#e8590c",
