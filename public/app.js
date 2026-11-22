@@ -1,4 +1,4 @@
-import { kc, esc, spocitej, datum } from "/shared.js";
+import { kc, esc, spocitej, datum, zakoduj } from "/shared.js";
 
 const $ = (s) => document.querySelector(s);
 const store = {
@@ -205,30 +205,32 @@ $("#odeslat").addEventListener("click", async () => {
   const btn = $("#odeslat");
   btn.disabled = true;
   try {
-    const { chybi, ...cista } = nabidka;
     const dodavatel = { nazev: nastaveni.nazev, ico: nastaveni.ico, dic: nastaveni.dic, telefon: nastaveni.telefon, email: nastaveni.email,
       adresa: nastaveni.adresa, platceDph: nastaveni.platceDph, sazbaDph: Number(nastaveni.sazbaDph) || 0 };
-    const r = await fetch("/api/quotes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...cista, dodavatel }) });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error);
+    const verejna = { cislo: nabidka.cislo, datum: nabidka.datum, platnostDni: nabidka.platnostDni, predmet: nabidka.predmet,
+      zakaznik: nabidka.zakaznik, poznamka: nabidka.poznamka, dodavatel,
+      polozky: nabidka.polozky.map(({ popis, mnozstvi, jednotka, cena_za_jednotku }) => ({ popis, mnozstvi, jednotka, cena_za_jednotku })) };
+    const url = location.origin + "/n#" + (await zakoduj(verejna));
 
+    const id = nabidka.id || crypto.randomUUID();
     const novy = !nabidka.id;
-    nabidka.id = data.id;
+    nabidka.id = id;
     if (novy) {
       nastaveni.dalsiCislo = (Number(nastaveni.dalsiCislo) || 1) + 1;
       store.set("nastaveni", nastaveni);
       form.elements.dalsiCislo.value = nastaveni.dalsiCislo;
     }
     const t = spocitej({ ...nabidka, dodavatel });
-    const hist = store.get("historie", []).filter((h) => h.id !== data.id);
-    hist.unshift({ id: data.id, cislo: nabidka.cislo, predmet: nabidka.predmet, zakaznik: nabidka.zakaznik.jmeno, celkem: t.celkem, datum: nabidka.datum });
-    store.set("historie", hist.slice(0, 200));
+    const hist = store.get("historie", []).filter((h) => h.id !== id);
+    hist.unshift({ id, url, cislo: nabidka.cislo, predmet: nabidka.predmet, zakaznik: nabidka.zakaznik.jmeno, celkem: t.celkem, datum: nabidka.datum,
+      nabidka: { ...nabidka, chybi: [] } });
+    store.set("historie", hist.slice(0, 100));
     store.set("rozpracovanyDiktat", "");
 
-    pripravOdeslani(location.origin + data.url, t.celkem);
+    pripravOdeslani(url, t.celkem);
     krok("odeslat");
   } catch (e) {
-    alert("Uložení selhalo: " + e.message);
+    alert("Vytvoření odkazu selhalo: " + e.message);
   } finally {
     btn.disabled = false;
   }
@@ -254,38 +256,25 @@ function pripravOdeslani(url, celkem) {
 
 $("#dalsi").addEventListener("click", () => { nabidka = null; diktat.value = ""; krok("diktat"); });
 
-// ---------- Historie ----------
-const STAV = { odeslana: "Odesláno", prijata: "Přijato ✓", odmitnuta: "Odmítnuto" };
-async function vykresliHistorii() {
+// ---------- Historie (jen v tomto telefonu) ----------
+function vykresliHistorii() {
   const hist = store.get("historie", []);
   const box = $("#seznam");
   if (!hist.length) { box.innerHTML = '<p class="muted">Zatím žádné nabídky.</p>'; return; }
   box.innerHTML = hist.map((h) => `
     <div class="list-item" data-id="${esc(h.id)}">
       <div><strong>${esc(h.predmet || "Nabídka")}</strong><div class="muted small">${esc(h.cislo)} · ${esc(h.zakaznik || "bez jména")} · ${datum(h.datum)}</div></div>
-      <div style="text-align:right"><div>${kc(h.celkem)}</div><span class="badge" data-stav>…</span></div>
+      <div style="text-align:right;white-space:nowrap">${kc(h.celkem)}</div>
     </div>`).join("");
-  box.querySelectorAll(".list-item").forEach(async (el) => {
-    el.addEventListener("click", () => otevriZHistorie(el.dataset.id));
-    try {
-      const q = await (await fetch("/api/quotes/" + el.dataset.id)).json();
-      const b = el.querySelector("[data-stav]");
-      b.textContent = STAV[q.stav] || q.stav;
-      b.className = "badge " + q.stav;
-      if (q.odpovedZakaznika?.zprava) b.title = q.odpovedZakaznika.zprava;
-    } catch { el.querySelector("[data-stav]").textContent = "?"; }
-  });
-}
-
-async function otevriZHistorie(id) {
-  const r = await fetch("/api/quotes/" + id);
-  if (!r.ok) return alert("Nabídka nenalezena na serveru.");
-  const q = await r.json();
-  nabidka = { ...q, chybi: [] };
-  prepni("nova");
-  vykresliEditor();
-  pripravOdeslani(location.origin + "/n/" + id, spocitej(q).celkem);
-  krok("odeslat");
+  box.querySelectorAll(".list-item").forEach((el) => el.addEventListener("click", () => {
+    const h = store.get("historie", []).find((x) => x.id === el.dataset.id);
+    if (!h) return;
+    nabidka = structuredClone(h.nabidka);
+    prepni("nova");
+    vykresliEditor();
+    pripravOdeslani(h.url, h.celkem);
+    krok("odeslat");
+  }));
 }
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});

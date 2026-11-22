@@ -1,6 +1,9 @@
 // Společné funkce pro aplikaci i stránku zákazníka
-export const kc = (n) =>
-  new Intl.NumberFormat("cs-CZ", { style: "currency", currency: "CZK", maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(Number(n) || 0);
+export const kc = (n) => {
+  const v = Number(n) || 0;
+  const d = Number.isInteger(Math.round(v * 100) / 100) ? 0 : 2;
+  return new Intl.NumberFormat("cs-CZ", { style: "currency", currency: "CZK", minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+};
 
 export const datum = (d) => new Date(d).toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" });
 
@@ -60,4 +63,22 @@ export function renderNabidka(q) {
     </div>
     ${q.poznamka ? `<section class="doc-note"><div class="doc-label">Poznámka</div>${esc(q.poznamka).replace(/\n/g, "<br>")}</section>` : ""}
   </article>`;
+}
+
+// Nabídka se přenáší přímo v odkazu (část za #), zkomprimovaná — nic se neukládá na server.
+const b64url = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const fromB64url = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+
+export async function zakoduj(obj) {
+  const data = new TextEncoder().encode(JSON.stringify(obj));
+  if (typeof CompressionStream === "undefined") return "j" + b64url(data);
+  const buf = await new Response(new Blob([data]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer();
+  return "z" + b64url(new Uint8Array(buf));
+}
+
+export async function dekoduj(s) {
+  const bytes = fromB64url(s.slice(1));
+  if (s[0] === "j") return JSON.parse(new TextDecoder().decode(bytes));
+  const buf = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer();
+  return JSON.parse(new TextDecoder().decode(buf));
 }

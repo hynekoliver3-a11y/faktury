@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
 <title>Cenová nabídka</title>
+<link rel="icon" href="/icon.svg">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -12,13 +14,19 @@
   <div id="obsah"><p class="muted">Načítám nabídku…</p></div>
 
   <div id="akce" class="card no-print hidden" style="margin-top:14px">
-    <div id="stav"></div>
-    <div id="tlacitka">
-      <label for="zprava" style="margin-top:0">Zpráva pro dodavatele (nepovinné)</label>
-      <textarea id="zprava" style="min-height:60px" placeholder="Např. vyhovuje mi úterý odpoledne"></textarea>
-      <div class="row" style="margin-top:12px">
-        <button class="btn primary" id="prijmout">Přijmout nabídku</button>
-        <button class="btn" id="odmitnout">Odmítnout</button>
+    <h2>Odpovědět dodavateli</h2>
+    <label for="zprava" style="margin-top:0">Zpráva (nepovinné)</label>
+    <textarea id="zprava" style="min-height:60px" placeholder="Např. vyhovuje mi úterý odpoledne"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="prijmout">Přijmout nabídku</button>
+      <button class="btn" id="odmitnout">Odmítnout</button>
+    </div>
+    <div id="kanaly" class="hidden" style="margin-top:12px">
+      <div class="muted small" style="margin-bottom:8px">Odeslat odpověď přes:</div>
+      <div class="row">
+        <a class="btn" id="k-sms">SMS</a>
+        <a class="btn" id="k-wa" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="btn" id="k-mail">E-mail</a>
       </div>
     </div>
     <div class="row" style="margin-top:12px">
@@ -29,36 +37,37 @@
 </div>
 
 <script type="module">
-import { renderNabidka, esc } from "/shared.js";
-const id = location.pathname.split("/").pop();
+import { renderNabidka, dekoduj, spocitej, kc } from "/shared.js";
 const $ = (s) => document.querySelector(s);
 
-const r = await fetch("/api/quotes/" + id);
-if (!r.ok) {
-  $("#obsah").innerHTML = '<div class="card"><h2>Nabídka nenalezena</h2><p class="muted">Odkaz je neplatný nebo byla nabídka smazána.</p></div>';
+let q = null;
+try { q = await dekoduj(location.hash.slice(1)); } catch {}
+
+if (!q?.dodavatel || !Array.isArray(q.polozky)) {
+  $("#obsah").innerHTML = '<div class="card"><h2>Nabídka nenalezena</h2><p class="muted">Odkaz je neúplný. Zkuste ho otevřít znovu celý, nebo požádejte dodavatele o nový.</p></div>';
 } else {
-  const q = await r.json();
-  document.title = `Cenová nabídka ${q.cislo} – ${q.dodavatel.nazev}`;
+  const d = q.dodavatel;
+  document.title = `Cenová nabídka ${q.cislo} – ${d.nazev}`;
   $("#obsah").innerHTML = renderNabidka(q);
   $("#akce").classList.remove("hidden");
-  if (q.dodavatel.telefon) { $("#volat").href = "tel:" + q.dodavatel.telefon.replace(/\s/g, ""); $("#volat").classList.remove("hidden"); }
-  ukazStav(q.stav);
+  const tel = (d.telefon || "").replace(/[^\d+]/g, "");
+  if (tel) { $("#volat").href = "tel:" + tel; $("#volat").classList.remove("hidden"); }
 
-  const odpovez = async (akce) => {
-    if (akce === "odmitnout" && !confirm("Opravdu odmítnout nabídku?")) return;
-    const res = await fetch(`/api/quotes/${id}/${akce}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ zprava: $("#zprava").value }) });
-    if (res.ok) ukazStav((await res.json()).stav); else alert("Nepodařilo se odeslat, zkuste to prosím znovu.");
+  const odpovez = (prijato) => {
+    const zprava = `${prijato ? "Přijímám" : "Odmítám"} cenovou nabídku č. ${q.cislo} („${q.predmet}“, ${kc(spocitej(q).celkem)}).` +
+      ($("#zprava").value.trim() ? "\n" + $("#zprava").value.trim() : "") + (q.zakaznik?.jmeno ? "\n" + q.zakaznik.jmeno : "");
+    const enc = encodeURIComponent(zprava);
+    $("#k-sms").href = `sms:${tel}?&body=${enc}`;
+    $("#k-wa").href = `https://wa.me/${tel.replace(/^\+/, "").replace(/^(\d{9})$/, "420$1")}?text=${enc}`;
+    $("#k-mail").href = `mailto:${encodeURIComponent(d.email || "")}?subject=${encodeURIComponent((prijato ? "Přijetí" : "Odmítnutí") + " nabídky " + q.cislo)}&body=${enc}`;
+    $("#k-sms").classList.toggle("hidden", !tel);
+    $("#k-wa").classList.toggle("hidden", !tel);
+    $("#k-mail").classList.toggle("hidden", !d.email);
+    $("#kanaly").classList.remove("hidden");
+    $("#kanaly").scrollIntoView({ behavior: "smooth", block: "center" });
   };
-  $("#prijmout").onclick = () => odpovez("prijmout");
-  $("#odmitnout").onclick = () => odpovez("odmitnout");
-
-  function ukazStav(stav) {
-    const s = $("#stav");
-    if (stav === "prijata") s.innerHTML = `<h2 style="color:var(--ok)">✓ Nabídka přijata</h2><p class="muted">${esc(q.dodavatel.nazev)} se vám ozve s termínem.</p>`;
-    else if (stav === "odmitnuta") s.innerHTML = `<h2>Nabídka odmítnuta</h2><p class="muted">Děkujeme za odpověď.</p>`;
-    else s.innerHTML = "";
-    $("#tlacitka").classList.toggle("hidden", stav !== "odeslana");
-  }
+  $("#prijmout").onclick = () => odpovez(true);
+  $("#odmitnout").onclick = () => odpovez(false);
 }
 </script>
 </body>
