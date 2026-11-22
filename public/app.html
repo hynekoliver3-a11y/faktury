@@ -55,7 +55,7 @@
         <label for="diktat" style="margin-top:0" id="diktat-label">Přepis – můžeš ho upravit</label>
         <textarea id="diktat" class="dictation" placeholder="Novák, Dlouhá 12 Brno, tel. 777 123 456. Výměna baterie v koupelně a sifonu pod umyvadlem. Práce 2 hodiny, baterie Grohe 2 400, sifon 350. Doprava 25 km. Termín příští týden."></textarea>
         <ul class="hint-list" id="psat-hint">
-          <li>kdo a kde</li><li>co se dělá</li><li>hodiny nebo paušál</li><li>materiál s cenou</li><li>doprava, termín</li>
+          <li>kdo a kde</li><li>co se dělá</li><li>počet hodin nebo paušál</li><li>materiál s cenou</li><li>doprava, termín</li>
         </ul>
         <div class="row" style="margin-top:14px">
           <button class="btn" id="vymazat">Vymazat</button>
@@ -94,7 +94,7 @@
         <textarea id="poznamka" rows="3"></textarea>
         <div class="grid2">
           <div><label for="cislo">Číslo nabídky</label><input id="cislo" class="mono"></div>
-          <div><label for="platnost">Platí dní</label><input id="platnost" type="number" min="1" inputmode="numeric" class="mono"></div>
+          <div><label for="platnost">Platnost (dny)</label><input id="platnost" type="number" min="1" inputmode="numeric" class="mono"></div>
         </div>
       </div>
 
@@ -149,10 +149,10 @@
 
       <p class="section-title" style="margin-top:26px">Ceny</p>
       <div class="grid2">
-        <div><label>Hodinová sazba, Kč bez DPH</label><input name="hodinovaSazba" type="number" min="0" inputmode="decimal" class="mono"></div>
-        <div><label>Doprava, Kč za km</label><input name="cenaKm" type="number" min="0" step="0.1" inputmode="decimal" class="mono"></div>
-        <div><label>Sazba DPH, %</label><input name="sazbaDph" type="number" min="0" inputmode="numeric" class="mono"></div>
-        <div><label>Nabídka platí dní</label><input name="platnostDni" type="number" min="1" inputmode="numeric" class="mono"></div>
+        <div><label>Hodinová sazba (Kč bez DPH)</label><input name="hodinovaSazba" type="number" min="0" inputmode="decimal" class="mono"></div>
+        <div><label>Doprava (Kč/km)</label><input name="cenaKm" type="number" min="0" step="0.1" inputmode="decimal" class="mono"></div>
+        <div><label>Sazba DPH (%)</label><input name="sazbaDph" type="number" min="0" inputmode="numeric" class="mono"></div>
+        <div><label>Platnost nabídky (dny)</label><input name="platnostDni" type="number" min="1" inputmode="numeric" class="mono"></div>
         <div><label>Předpona čísla</label><input name="prefix" class="mono"></div>
         <div><label>Další pořadové číslo</label><input name="dalsiCislo" type="number" min="1" inputmode="numeric" class="mono"></div>
       </div>

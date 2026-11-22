@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nabídka z hlasu – cenové nabídky pro řemeslníky</title>
-<meta name="description" content="Řekni nebo napiš, co jsi u zákazníka viděl. Za dvě minuty má cenovou nabídku s položkami a DPH v telefonu.">
+<meta name="description" content="Řekni nebo napiš, co jsi u zákazníka viděl, a za dvě minuty má zákazník v telefonu cenovou nabídku s položkami a DPH.">
 <meta name="theme-color" content="#f3efe6">
 <meta property="og:title" content="Nabídka z hlasu">
 <meta property="og:description" content="Cenová nabídka ještě před odjezdem od zákazníka. Nadiktuješ nebo napíšeš, aplikace ji sestaví.">
@@ -141,7 +141,7 @@
       <div class="stage" aria-label="Ukázka: z diktátu vznikne nabídka">
         <div class="note">
           <div class="tag"><i></i> Diktát <span class="t">0:38</span></div>
-          „Novák, Dlouhá dvanáct. Měním baterii v koupelně a sifon. Dvě hodiny práce, baterie Grohe dva čtyři sta, sifon tři padesát. Doprava pětadvacet kiláků.“
+          „Novák, Dlouhá dvanáct. Výměna baterie v koupelně a sifonu. Dvě hodiny práce, baterie Grohe dva tisíce čtyři sta, sifon tři sta padesát. Doprava dvacet pět kilometrů.“
         </div>
         <div class="sheet">
           <div class="hd"><b>Výměna baterie a sifonu</b><span>N2026-014</span></div>
@@ -170,7 +170,7 @@
         <ol class="timeline">
           <li><time>14:02</time><div><h3>Odcházíš od zákazníka</h3><p>Prohlédl jsi koupelnu, víš, co se bude měnit a kolik to zabere.</p></div></li>
           <li class="hl"><time>14:03</time><div><h3>V autě to řekneš do telefonu</h3><p>Necelá minuta mluvení. Kdo, kde, co, kolik hodin, jaký materiál a za kolik. Když nechceš mluvit, napíšeš to.</p></div></li>
-          <li><time>14:04</time><div><h3>Projdeš položky</h3><p>Množství, ceny a součet s DPH jsou vyplněné. Kde jsi cenu neřekl, je položka žlutě a čeká na tebe. Aplikace si ceny nevymýšlí.</p></div></li>
+          <li><time>14:04</time><div><h3>Projdeš položky</h3><p>Množství, ceny a součet s DPH jsou vyplněné. Kde jsi cenu neřekl, je položka zvýrazněná žlutě a čeká na tebe. Aplikace si ceny nevymýšlí.</p></div></li>
           <li class="hl"><time>14:05</time><div><h3>Pošleš odkaz</h3><p>SMS, WhatsApp nebo e-mail. Zákazník nic neinstaluje, otevře nabídku a může si ji stáhnout jako PDF.</p></div></li>
           <li><time>15:20</time><div><h3>Přijde odpověď</h3><p>Zákazník klepne na „Přijmout“ a ty dostaneš zprávu:</p><span class="sms">Přijímám nabídku č. N2026-014. Hodí se mi čtvrtek ráno. Novák</span></div></li>
         </ol>
@@ -189,12 +189,12 @@
         <div class="two">
           <div>
             <h3>Mluvit</h3>
-            <p>Klepneš na mikrofon a mluvíš normálně. Rozumí „dva a půl hodiny“, „patnáct set“ i „s DPH“. Přepis vidíš hned a můžeš ho opravit.</p>
+            <p>Klepneš na mikrofon a mluvíš normálně. Aplikace rozumí i výrazům jako „dvě a půl hodiny“, „patnáct set“ nebo „s DPH“. Přepis vidíš hned a můžeš ho opravit.</p>
             <p class="ex">„…a ještě silikon, dvě tuby po stovce. Termín nejdřív za čtrnáct dní.“</p>
           </div>
           <div>
             <h3>Psát</h3>
-            <p>Stačí heslovitě, jako do poznámek. Žádné kolonky, jeden text – položky se z něj udělají samy.</p>
+            <p>Stačí heslovitě, jako do poznámek. Žádné kolonky, jen jeden text, ze kterého se položky vytvoří samy.</p>
             <p class="ex typed">novák dlouhá 12<br>baterie grohe 2400<br>sifon 350<br>práce 2h, doprava 25km</p>
           </div>
         </div>
@@ -212,10 +212,10 @@
       <div class="sec-body">
         <dl class="spec">
           <div><dt>Tvoje údaje</dt><dd>Jméno nebo firma, IČO, DIČ, adresa, telefon.</dd></div>
-          <div><dt>Číslo a platnost</dt><dd>Číslování N2026-001, 002… a datum, do kdy nabídka platí.</dd></div>
-          <div><dt>Položky</dt><dd>Práce, materiál, doprava. Množství, jednotka, cena za kus.</dd></div>
-          <div><dt>DPH</dt><dd>Základ, daň a celkem. Pro neplátce věta „není plátcem DPH“.</dd></div>
-          <div><dt>Tvoje sazby</dt><dd>Hodinovka a cena za km se doplní, když je v diktátu neřekneš.</dd></div>
+          <div><dt>Číslo a platnost</dt><dd>Pořadové číslo (N2026-001, N2026-002…) a datum, do kdy nabídka platí.</dd></div>
+          <div><dt>Položky</dt><dd>Práce, materiál a doprava. U každé množství, jednotka a cena za jednotku.</dd></div>
+          <div><dt>DPH</dt><dd>Základ daně, DPH a celková částka. U neplátce věta „Dodavatel není plátcem DPH“.</dd></div>
+          <div><dt>Tvoje sazby</dt><dd>Hodinová sazba a cena za kilometr se doplní, když je v diktátu neřekneš.</dd></div>
           <div><dt>Poznámka</dt><dd>Termín, co si zajistí zákazník, co není v ceně.</dd></div>
         </dl>
       </div>
@@ -224,7 +224,7 @@
     <section class="sec" id="otazky">
       <div class="sec-head">
         <div class="kicker">Otázky</div>
-        <div><h2>Na co se lidi ptají</h2></div>
+        <div><h2>Na co se lidé ptají</h2></div>
       </div>
       <div class="sec-body faq">
         <details><summary>Musím si něco instalovat?</summary><p>Ne. Otevřeš aplikaci v prohlížeči. Jestli ji chceš mít jako ikonu, v Safari nebo Chromu dej Sdílet → Přidat na plochu.</p></details>
@@ -237,7 +237,7 @@
 
     <section class="end">
       <h2>Příští nabídku pošli z auta.</h2>
-      <p>Nastavení zabere minutu, první nabídka dvě.</p>
+      <p>Nastavení zabere minutu, první nabídka dvě minuty.</p>
       <a class="btn accent" href="/app" style="padding:15px 24px;font-size:16px">Otevřít aplikaci</a>
     </section>
   </main>

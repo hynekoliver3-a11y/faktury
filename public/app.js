@@ -117,7 +117,7 @@ function stop() {
 $("#vymazat").addEventListener("click", () => { if (!diktat.value || confirm("Smazat přepis?")) { diktat.value = ""; store.set("rozpracovanyDiktat", ""); } });
 
 fetch("/api/status").then((r) => r.json()).then((s) => {
-  $("#ai-status").textContent = s.ai ? "" : "AI není zapnuté (na serveru chybí API klíč). Položky se rozpoznají jen zjednodušeně.";
+  $("#ai-status").textContent = s.ai ? "" : "AI není zapnutá (na serveru chybí API klíč). Položky se rozpoznají jen zjednodušeně.";
 }).catch(() => {});
 
 // ---------- Vytvoření nabídky ----------
@@ -214,7 +214,7 @@ $("#odeslat").addEventListener("click", async () => {
   if (!nastaveni.nazev) { alert("Nejdřív vyplň v Nastavení jméno nebo firmu."); return prepni("nastaveni"); }
   nabidka.polozky = nabidka.polozky.filter((p) => p.popis.trim());
   if (!nabidka.polozky.length) return alert("Nabídka nemá žádné položky.");
-  if (nabidka.polozky.some((p) => !Number(p.cena_za_jednotku)) && !confirm("Některé položky mají cenu 0 Kč. Přesto odeslat?")) return;
+  if (nabidka.polozky.some((p) => !Number(p.cena_za_jednotku)) && !confirm("Některé položky mají cenu 0 Kč. Chceš nabídku přesto odeslat?")) return;
 
   const btn = $("#odeslat");
   btn.disabled = true;
@@ -252,7 +252,7 @@ $("#odeslat").addEventListener("click", async () => {
 
 function pripravOdeslani(url, celkem) {
   const z = nabidka.zakaznik;
-  const zprava = `Dobrý den${z.jmeno ? ", " + z.jmeno : ""}, posílám cenovou nabídku „${nabidka.predmet}“ na ${kc(celkem)}: ${url}\n${nastaveni.nazev}${nastaveni.telefon ? ", " + nastaveni.telefon : ""}`;
+  const zprava = `Dobrý den, posílám Vám cenovou nabídku „${nabidka.predmet}“ na ${kc(celkem)}: ${url}\n${nastaveni.nazev}${nastaveni.telefon ? ", " + nastaveni.telefon : ""}`;
   $("#odkaz").value = url;
   const tel = (z.telefon || "").replace(/[^\d+]/g, "");
   $("#sms").href = `sms:${tel}?&body=${encodeURIComponent(zprava)}`;
