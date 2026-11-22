@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f3efe6">
+<meta name="theme-color" content="#f5f2eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Nabídka z hlasu</title>
 <link rel="manifest" href="/manifest.webmanifest">
@@ -11,157 +11,268 @@
 <link rel="apple-touch-icon" href="/icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div class="wrap">
-  <header class="topbar">
-    <a class="wordmark" href="/">nabídka<span>/</span>z hlasu</a>
-    <nav class="tabs" aria-label="Sekce">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-mic" viewBox="0 0 24 24"><path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2Z"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></g></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3 2 20h20L12 3Z" stroke-linejoin="round"/><path d="M12 10v4M12 17v.01"/></g></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></g></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v7h14v-7"/></g></symbol>
+  <symbol id="i-sms" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4V5Z"/></g></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-4A8 8 0 1 1 8 19l-4 1Z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1-1.2 2 .9c-.3 1-1.2 1.6-2.2 1.5A6.5 6.5 0 0 1 8.3 9.2c-.1-1 .5-1.9 1.5-2.2l.9 2-1.2 1Z"/></g></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 6h18v12H3z"/><path d="m3 7 9 6 9-6"/></g></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 5v14M5 12h14"/></symbol>
+</svg>
+
+<header class="app-head">
+  <div class="in">
+    <a class="wordmark" href="/"><span class="mark"><svg><use href="#i-mic"/></svg></span>Nabídka z hlasu</a>
+    <nav class="nav" aria-label="Sekce">
       <button data-tab="nova" class="active">Nová</button>
-      <button data-tab="historie">Odeslané</button>
+      <button data-tab="historie">Odeslané <span class="count hidden" id="hist-count"></span></button>
       <button data-tab="nastaveni">Nastavení</button>
     </nav>
-  </header>
+  </div>
+</header>
 
-  <!-- ===== Krok 1: zadání ===== -->
+<main class="app">
+  <!-- ================= NOVÁ ================= -->
   <section id="tab-nova">
-    <div id="krok-diktat">
-      <div id="setup-hint" class="warn hidden" style="margin-bottom:14px">
-        Než pošleš první nabídku, vyplň <a href="#" data-goto="nastaveni">Nastavení</a>: jméno nebo firmu, IČO a hodinovou sazbu.
+
+    <!-- 1 · Zadání -->
+    <div id="krok-diktat" class="screen">
+      <div class="steps" aria-hidden="true"><span class="on"><b>1</b>Zadání</span><span><b>2</b>Kontrola</span><span><b>3</b>Odeslání</span></div>
+      <div class="screen-head">
+        <h1>Nová nabídka</h1>
+        <div class="meta" id="next-num"></div>
       </div>
 
-      <div class="mode" role="group" aria-label="Způsob zadání">
-        <button type="button" data-mode="mluvit" aria-pressed="true">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2Z"/></svg>
-          Mluvit
-        </button>
-        <button type="button" data-mode="psat" aria-pressed="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg>
-          Psát
-        </button>
-      </div>
+      <div class="capture">
+        <div>
+          <div id="setup-hint" class="notice hidden" style="margin-bottom:var(--s5)">
+            <svg class="icon"><use href="#i-info"/></svg>
+            <div><strong>Chybí tvoje údaje</strong>Než pošleš první nabídku, vyplň v <a href="#" data-goto="nastaveni">Nastavení</a> jméno nebo firmu, IČO a hodinovou sazbu.</div>
+          </div>
 
-      <div class="card mic-area" id="mic-card">
-        <button id="mic" class="mic" aria-label="Spustit nahrávání">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2Z"/></svg>
-        </button>
-        <div class="mic-label" id="mic-label">Klepni a popiš zakázku</div>
-        <div class="muted small" id="mic-sub">Jako bys to říkal kolegovi. Klidně s „ehm“ a opravami.</div>
-      </div>
+          <div class="mode" role="group" aria-label="Způsob zadání">
+            <button type="button" data-mode="mluvit" aria-pressed="true"><svg class="icon"><use href="#i-mic"/></svg>Mluvit</button>
+            <button type="button" data-mode="psat" aria-pressed="false"><svg class="icon"><use href="#i-pen"/></svg>Psát</button>
+          </div>
 
-      <div class="card" id="text-card">
-        <label for="diktat" style="margin-top:0" id="diktat-label">Přepis – můžeš ho upravit</label>
-        <textarea id="diktat" class="dictation" placeholder="Novák, Dlouhá 12 Brno, tel. 777 123 456. Výměna baterie v koupelně a sifonu pod umyvadlem. Práce 2 hodiny, baterie Grohe 2 400, sifon 350. Doprava 25 km. Termín příští týden."></textarea>
-        <ul class="hint-list" id="psat-hint">
-          <li>kdo a kde</li><li>co se dělá</li><li>počet hodin nebo paušál</li><li>materiál s cenou</li><li>doprava, termín</li>
-        </ul>
-        <div class="row" style="margin-top:14px">
-          <button class="btn" id="vymazat">Vymazat</button>
-          <button class="btn accent" id="vytvorit">Udělat nabídku</button>
+          <div class="recorder" id="mic-card">
+            <button id="mic" class="rec-btn" aria-label="Spustit nahrávání">
+              <svg><use href="#i-mic"/></svg><span class="stop"></span>
+            </button>
+            <div class="rec-text">
+              <h2 id="mic-label">Klepni a popiš zakázku</h2>
+              <p id="mic-sub">Jako bys to říkal kolegovi. Klidně s „ehm“ a opravami.</p>
+              <div class="rec-time hidden" id="rec-time" aria-live="off">0:00</div>
+            </div>
+          </div>
+
+          <div class="sheet-field" id="text-card">
+            <div class="head">
+              <label for="diktat" class="label" id="diktat-label">Přepis – můžeš ho upravit</label>
+              <span class="char-count" id="char-count"></span>
+            </div>
+            <textarea id="diktat" class="ruled" placeholder="Novák, Dlouhá 12 Brno, tel. 777 123 456. Výměna baterie v koupelně a sifonu pod umyvadlem. Práce 2 hodiny, baterie Grohe 2 400, sifon 350. Doprava 25 km. Termín příští týden."></textarea>
+
+            <div class="processing hidden" id="processing" role="status" aria-live="polite">
+              <div class="progress"><i></i></div>
+              <p id="processing-text">Čtu zakázku…</p>
+            </div>
+
+            <div class="capture-actions">
+              <button class="btn text" id="vymazat">Vymazat</button>
+              <button class="btn primary lg" id="vytvorit">Udělat nabídku <span class="arrow">→</span></button>
+            </div>
+            <div id="ai-status" class="notice info hidden" style="margin-top:var(--s5)">
+              <svg class="icon"><use href="#i-info"/></svg>
+              <div><strong>Zjednodušené rozpoznávání</strong>Na serveru chybí API klíč pro AI. Položky se rozpoznají jen podle čísel a jednotek, zkontroluj je.</div>
+            </div>
+          </div>
         </div>
-        <p class="muted small" id="ai-status" style="margin:10px 0 0"></p>
+
+        <aside class="guide" id="psat-hint">
+          <h3>Co říct nebo napsat</h3>
+          <ol>
+            <li>Kdo je zákazník a kde to je</li>
+            <li>Co se bude dělat</li>
+            <li>Počet hodin nebo paušál</li>
+            <li>Materiál a jeho cena</li>
+            <li>Doprava, termín, co není v ceně</li>
+          </ol>
+          <p class="example">Když cenu neřekneš, položka zůstane prázdná a aplikace tě na ni upozorní. <button type="button" id="vzor">Vložit ukázku</button></p>
+        </aside>
       </div>
     </div>
 
-    <!-- ===== Krok 2: kontrola ===== -->
-    <div id="krok-edit" class="hidden">
-      <div id="chybi" class="warn hidden" style="margin-bottom:14px"></div>
-
-      <div class="card">
-        <p class="section-title">Zakázka</p>
-        <label for="predmet" style="margin-top:0">Název nabídky</label>
-        <input id="predmet">
-        <div class="grid2">
-          <div><label for="z-jmeno">Zákazník</label><input id="z-jmeno" autocomplete="off"></div>
-          <div><label for="z-telefon">Telefon</label><input id="z-telefon" type="tel" autocomplete="off"></div>
-          <div><label for="z-email">E-mail</label><input id="z-email" type="email" autocomplete="off"></div>
-          <div><label for="z-adresa">Adresa</label><input id="z-adresa" autocomplete="off"></div>
-        </div>
+    <!-- 2 · Kontrola -->
+    <div id="krok-edit" class="screen hidden">
+      <div class="steps" aria-hidden="true"><span class="done"><b>✓</b>Zadání</span><span class="on"><b>2</b>Kontrola</span><span><b>3</b>Odeslání</span></div>
+      <div class="screen-head">
+        <h1>Zkontroluj nabídku</h1>
+        <button class="btn text" id="zpet">← Zpět k zadání</button>
       </div>
 
-      <div class="card">
-        <p class="section-title">Položky</p>
-        <div id="polozky"></div>
-        <button class="btn sm" id="pridat" style="margin-top:10px">+ Položka</button>
-        <div class="totals" id="souhrn"></div>
+      <div class="review">
+        <div>
+          <div id="chybi" class="notice hidden" style="margin-bottom:var(--s6)"></div>
+
+          <section class="block">
+            <label class="field">
+              <span>Název nabídky</span>
+              <input id="predmet" class="title-input" placeholder="Např. Výměna baterie v koupelně">
+            </label>
+          </section>
+
+          <section class="block">
+            <div class="block-head"><h2>Položky</h2><span class="muted small">množství × cena za jednotku</span></div>
+            <div class="lines" id="polozky"></div>
+            <button class="add-line" id="pridat"><svg class="icon"><use href="#i-plus"/></svg>Přidat položku</button>
+            <div class="totals totals-inline" id="souhrn"></div>
+          </section>
+
+          <section class="block">
+            <div class="block-head"><h2>Zákazník</h2><span class="muted small">vše nepovinné</span></div>
+            <div class="fields">
+              <label class="field"><span>Jméno</span><input id="z-jmeno" autocomplete="off"></label>
+              <label class="field"><span>Telefon</span><input id="z-telefon" type="tel" autocomplete="off" class="mono"></label>
+              <label class="field"><span>E-mail</span><input id="z-email" type="email" autocomplete="off"></label>
+              <label class="field"><span>Adresa</span><input id="z-adresa" autocomplete="off"></label>
+            </div>
+          </section>
+
+          <section class="block">
+            <div class="block-head"><h2>Podmínky</h2></div>
+            <div class="fields">
+              <label class="field wide"><span>Poznámka pro zákazníka</span><textarea id="poznamka" rows="3" placeholder="Termín, co si zajistí zákazník, co není v ceně"></textarea></label>
+              <label class="field"><span>Číslo nabídky</span><input id="cislo" class="mono"></label>
+              <label class="field"><span>Platnost (dny)</span><input id="platnost" type="number" min="1" inputmode="numeric" class="mono"></label>
+            </div>
+          </section>
+        </div>
+
+        <aside>
+          <div class="summary">
+            <p class="eyebrow">Souhrn</p>
+            <dl id="summary-meta"></dl>
+            <div class="totals" id="souhrn-side"></div>
+            <button class="btn primary lg block" id="odeslat">Pokračovat k odeslání <span class="arrow">→</span></button>
+            <p class="hint">Odkaz se vytvoří až teď. Do té doby se nic neodesílá.</p>
+          </div>
+        </aside>
       </div>
 
-      <div class="card">
-        <p class="section-title">Ostatní</p>
-        <label for="poznamka" style="margin-top:0">Poznámka pro zákazníka</label>
-        <textarea id="poznamka" rows="3"></textarea>
-        <div class="grid2">
-          <div><label for="cislo">Číslo nabídky</label><input id="cislo" class="mono"></div>
-          <div><label for="platnost">Platnost (dny)</label><input id="platnost" type="number" min="1" inputmode="numeric" class="mono"></div>
-        </div>
-      </div>
-
-      <div class="sticky no-print">
-        <div class="inner">
-          <button class="btn" id="zpet">Zpět</button>
-          <button class="btn accent" id="odeslat">Poslat zákazníkovi</button>
-        </div>
+      <div class="action-bar">
+        <div class="sum"><small>Celkem</small><b id="bar-total">0 Kč</b></div>
+        <button class="btn primary lg" id="odeslat-m">Odeslat <span class="arrow">→</span></button>
       </div>
     </div>
 
-    <!-- ===== Krok 3: odeslání ===== -->
-    <div id="krok-odeslat" class="hidden">
-      <div class="card">
-        <h2>Nabídka je hotová</h2>
-        <p class="muted" style="margin-top:0">Pošli zákazníkovi odkaz. Uvidí nabídku, stáhne si PDF a odpoví ti SMS, WhatsAppem nebo e-mailem.</p>
-        <input id="odkaz" readonly class="mono" style="font-size:13px">
-        <div class="row" style="margin-top:12px">
-          <button class="btn accent" id="sdilet">Sdílet…</button>
-          <a class="btn" id="sms">SMS</a>
-          <a class="btn" id="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
-          <a class="btn" id="mail">E-mail</a>
-          <button class="btn" id="kopirovat">Kopírovat</button>
-          <a class="btn" id="nahled" target="_blank" rel="noopener">Náhled</a>
+    <!-- 3 · Odeslání -->
+    <div id="krok-odeslat" class="screen hidden">
+      <div class="steps" aria-hidden="true"><span class="done"><b>✓</b>Zadání</span><span class="done"><b>✓</b>Kontrola</span><span class="on"><b>3</b>Odeslání</span></div>
+      <div class="sent">
+        <div>
+          <div class="sent-head">
+            <span class="check-mark"><svg><use href="#i-check"/></svg></span>
+            <div>
+              <h2 id="sent-title">Nabídka je připravená</h2>
+              <p id="sent-sub">Vyber, kudy ji pošleš zákazníkovi.</p>
+            </div>
+          </div>
+
+          <div class="link-field">
+            <label for="odkaz" class="sr-only">Odkaz na nabídku</label>
+            <input id="odkaz" readonly>
+            <button class="btn" id="kopirovat">Kopírovat</button>
+          </div>
+
+          <div class="channels">
+            <button class="channel primary" id="sdilet"><span class="ic"><svg class="icon"><use href="#i-share"/></svg></span><span><b>Sdílet…</b><small>Vybrat aplikaci v telefonu</small></span><svg class="icon chev"><use href="#i-chev"/></svg></button>
+            <a class="channel" id="sms"><span class="ic"><svg class="icon"><use href="#i-sms"/></svg></span><span><b>SMS</b><small id="sms-sub"></small></span><svg class="icon chev"><use href="#i-chev"/></svg></a>
+            <a class="channel" id="whatsapp" target="_blank" rel="noopener"><span class="ic"><svg class="icon"><use href="#i-wa"/></svg></span><span><b>WhatsApp</b><small id="wa-sub"></small></span><svg class="icon chev"><use href="#i-chev"/></svg></a>
+            <a class="channel" id="mail"><span class="ic"><svg class="icon"><use href="#i-mail"/></svg></span><span><b>E-mail</b><small id="mail-sub"></small></span><svg class="icon chev"><use href="#i-chev"/></svg></a>
+          </div>
+
+          <div class="sent-foot">
+            <button class="btn dark" id="dalsi">Nová nabídka</button>
+            <a class="btn" id="nahled" target="_blank" rel="noopener">Otevřít jako zákazník</a>
+          </div>
+        </div>
+
+        <div class="preview">
+          <p class="eyebrow"><span>Takhle ji uvidí zákazník</span></p>
+          <div class="preview-frame" id="preview"></div>
         </div>
       </div>
-      <button class="btn block" id="dalsi">Další nabídka</button>
     </div>
   </section>
 
-  <!-- ===== Odeslané ===== -->
-  <section id="tab-historie" class="hidden">
-    <div class="card">
-      <p class="section-title">Odeslané nabídky · uložené v tomto telefonu</p>
-      <div id="seznam"></div>
+  <!-- ================= ODESLANÉ ================= -->
+  <section id="tab-historie" class="screen hidden">
+    <div class="screen-head">
+      <h1>Odeslané nabídky</h1>
+      <div class="meta">uložené v tomto zařízení</div>
     </div>
+    <div class="history" id="seznam"></div>
   </section>
 
-  <!-- ===== Nastavení ===== -->
-  <section id="tab-nastaveni" class="hidden">
-    <form class="card" id="nastaveni-form">
-      <p class="section-title">Tvoje údaje na nabídce</p>
-      <label style="margin-top:0">Jméno nebo firma *</label><input name="nazev" required>
-      <div class="grid2">
-        <div><label>IČO</label><input name="ico" inputmode="numeric" class="mono"></div>
-        <div><label>DIČ</label><input name="dic" class="mono"></div>
-        <div><label>Telefon</label><input name="telefon" type="tel"></div>
-        <div><label>E-mail</label><input name="email" type="email"></div>
+  <!-- ================= NASTAVENÍ ================= -->
+  <section id="tab-nastaveni" class="screen hidden">
+    <div class="screen-head"><h1>Nastavení</h1></div>
+    <form class="settings" id="nastaveni-form" novalidate>
+      <div class="set-group">
+        <div><h2>Tvoje údaje</h2><p>Zobrazí se v hlavičce každé nabídky.</p></div>
+        <div class="fields">
+          <label class="field wide"><span>Jméno nebo firma *</span><input name="nazev" required autocomplete="organization"></label>
+          <label class="field"><span>IČO</span><input name="ico" inputmode="numeric" class="mono"></label>
+          <label class="field"><span>DIČ</span><input name="dic" class="mono"></label>
+          <label class="field"><span>Telefon</span><input name="telefon" type="tel" class="mono" autocomplete="tel"></label>
+          <label class="field"><span>E-mail</span><input name="email" type="email" autocomplete="email"></label>
+          <label class="field wide"><span>Adresa</span><input name="adresa" autocomplete="street-address"></label>
+        </div>
       </div>
-      <label>Adresa</label><input name="adresa">
-      <label class="check"><input type="checkbox" name="platceDph"> Jsem plátce DPH</label>
 
-      <p class="section-title" style="margin-top:26px">Ceny</p>
-      <div class="grid2">
-        <div><label>Hodinová sazba (Kč bez DPH)</label><input name="hodinovaSazba" type="number" min="0" inputmode="decimal" class="mono"></div>
-        <div><label>Doprava (Kč/km)</label><input name="cenaKm" type="number" min="0" step="0.1" inputmode="decimal" class="mono"></div>
-        <div><label>Sazba DPH (%)</label><input name="sazbaDph" type="number" min="0" inputmode="numeric" class="mono"></div>
-        <div><label>Platnost nabídky (dny)</label><input name="platnostDni" type="number" min="1" inputmode="numeric" class="mono"></div>
-        <div><label>Předpona čísla</label><input name="prefix" class="mono"></div>
-        <div><label>Další pořadové číslo</label><input name="dalsiCislo" type="number" min="1" inputmode="numeric" class="mono"></div>
+      <div class="set-group">
+        <div><h2>Ceny a DPH</h2><p>Použijí se, když v zadání sazbu nebo cenu dopravy neřekneš.</p></div>
+        <div class="fields">
+          <label class="checkbox wide"><input type="checkbox" name="platceDph"> Jsem plátce DPH</label>
+          <label class="field"><span>Sazba DPH (%)</span><input name="sazbaDph" type="number" min="0" inputmode="numeric" class="mono"></label>
+          <span></span>
+          <label class="field"><span>Hodinová sazba (Kč bez DPH)</span><input name="hodinovaSazba" type="number" min="0" inputmode="decimal" class="mono"></label>
+          <label class="field"><span>Doprava (Kč/km)</span><input name="cenaKm" type="number" min="0" step="0.1" inputmode="decimal" class="mono"></label>
+        </div>
       </div>
-      <button class="btn primary block" style="margin-top:18px">Uložit</button>
-      <p class="muted small" id="ulozeno" style="margin:8px 0 0"></p>
+
+      <div class="set-group">
+        <div><h2>Číslování a platnost</h2><p>Číslo se po každé odeslané nabídce samo zvýší.</p></div>
+        <div>
+          <div class="fields">
+            <label class="field"><span>Předpona čísla</span><input name="prefix" class="mono"></label>
+            <label class="field"><span>Další pořadové číslo</span><input name="dalsiCislo" type="number" min="1" inputmode="numeric" class="mono"></label>
+            <label class="field"><span>Platnost nabídky (dny)</span><input name="platnostDni" type="number" min="1" inputmode="numeric" class="mono"></label>
+          </div>
+          <p class="preview-num">Příští nabídka dostane číslo <b id="num-preview"></b></p>
+        </div>
+      </div>
+
+      <div class="set-actions">
+        <button class="btn dark lg">Uložit nastavení</button>
+        <span class="saved" id="ulozeno" role="status"><svg class="icon"><use href="#i-check"/></svg>Uloženo</span>
+      </div>
     </form>
   </section>
-</div>
+</main>
 
+<div class="toast-host" id="toasts" aria-live="polite"></div>
 <script type="module" src="/app.js"></script>
 </body>
 </html>

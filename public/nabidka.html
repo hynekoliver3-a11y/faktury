@@ -5,54 +5,68 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#f5f2eb">
 <title>Cenová nabídka</title>
 <link rel="icon" href="/icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div class="wrap">
-  <div id="obsah"><p class="muted">Načítám nabídku…</p></div>
-
-  <div id="akce" class="card no-print hidden" style="margin-top:14px">
-    <p class="section-title">Odpověď dodavateli</p>
-    <label for="zprava" style="margin-top:0">Zpráva (nepovinná)</label>
-    <textarea id="zprava" style="min-height:60px" placeholder="Např.: Vyhovuje mi úterý odpoledne."></textarea>
-    <div class="row" style="margin-top:12px">
-      <button class="btn accent" id="prijmout">Přijmout nabídku</button>
-      <button class="btn" id="odmitnout">Odmítnout</button>
-    </div>
-    <div id="kanaly" class="hidden" style="margin-top:12px">
-      <div class="muted small" style="margin-bottom:8px">Odpověď odeslat přes:</div>
-      <div class="row">
-        <a class="btn" id="k-sms">SMS</a>
-        <a class="btn" id="k-wa" target="_blank" rel="noopener">WhatsApp</a>
-        <a class="btn" id="k-mail">E-mail</a>
-      </div>
-    </div>
-    <div class="row" style="margin-top:12px">
-      <button class="btn" onclick="print()">Stáhnout PDF / Tisk</button>
-      <a class="btn hidden" id="volat">Zavolat</a>
-    </div>
+<main class="client">
+  <div id="obsah">
+    <div class="doc" aria-busy="true"><p class="muted">Načítám nabídku…</p></div>
   </div>
-</div>
+
+  <aside id="akce" class="no-print hidden">
+    <section class="respond">
+      <h2>Odpovědět na nabídku</h2>
+      <p>Odpověď odešlete dodavateli přímo ze svého telefonu nebo e-mailu.</p>
+      <label class="field">
+        <span>Zpráva (nepovinná)</span>
+        <textarea id="zprava" rows="3" placeholder="Např.: Vyhovuje mi úterý odpoledne."></textarea>
+      </label>
+      <div class="choice">
+        <button class="btn primary" id="prijmout">Přijmout</button>
+        <button class="btn" id="odmitnout">Odmítnout</button>
+      </div>
+      <div id="kanaly" class="result hidden" role="status">
+        <p id="kanaly-text"></p>
+        <a class="btn primary" id="k-sms">Poslat SMS</a>
+        <a class="btn" id="k-wa" target="_blank" rel="noopener">Poslat přes WhatsApp</a>
+        <a class="btn" id="k-mail">Poslat e-mailem</a>
+      </div>
+    </section>
+
+    <section class="contact">
+      <p class="eyebrow" style="margin-bottom:var(--s2)">Dodavatel</p>
+      <b id="dod-nazev"></b>
+      <span class="muted" id="dod-kontakt"></span>
+      <div class="row">
+        <a class="btn hidden" id="volat">Zavolat</a>
+        <button class="btn" onclick="print()">Uložit PDF</button>
+      </div>
+    </section>
+  </aside>
+</main>
 
 <script type="module">
-import { renderNabidka, dekoduj, spocitej, kc } from "/shared.js";
+import { renderNabidka, dekoduj, spocitej, kc, esc } from "/shared.js";
 const $ = (s) => document.querySelector(s);
 
 let q = null;
 try { q = await dekoduj(location.hash.slice(1)); } catch {}
 
 if (!q?.dodavatel || !Array.isArray(q.polozky)) {
-  $("#obsah").innerHTML = '<div class="card"><h2>Nabídka nenalezena</h2><p class="muted">Odkaz je neúplný. Zkuste ho otevřít znovu celý, nebo požádejte dodavatele o nový.</p></div>';
+  $("#obsah").innerHTML = '<div class="empty"><div class="glyph" aria-hidden="true"></div><h2>Nabídka nenalezena</h2><p>Odkaz je neúplný. Zkuste ho otevřít znovu celý, nebo požádejte dodavatele o nový.</p></div>';
 } else {
   const d = q.dodavatel;
   document.title = `Cenová nabídka ${q.cislo} – ${d.nazev}`;
   $("#obsah").innerHTML = renderNabidka(q);
   $("#akce").classList.remove("hidden");
+  $("#dod-nazev").textContent = d.nazev;
+  $("#dod-kontakt").innerHTML = [d.telefon, d.email].filter(Boolean).map(esc).join("<br>");
   const tel = (d.telefon || "").replace(/[^\d+]/g, "");
   if (tel) { $("#volat").href = "tel:" + tel; $("#volat").classList.remove("hidden"); }
 
@@ -66,8 +80,14 @@ if (!q?.dodavatel || !Array.isArray(q.polozky)) {
     $("#k-sms").classList.toggle("hidden", !tel);
     $("#k-wa").classList.toggle("hidden", !tel);
     $("#k-mail").classList.toggle("hidden", !d.email);
+    $("#k-mail").classList.toggle("primary", !tel);
+    $("#kanaly-text").textContent = prijato
+      ? "Děkujeme. Ještě odpověď odešlete – zpráva je předvyplněná:"
+      : "Odpověď je předvyplněná, stačí ji odeslat:";
+    $("#prijmout").setAttribute("aria-pressed", String(prijato));
+    $("#odmitnout").setAttribute("aria-pressed", String(!prijato));
     $("#kanaly").classList.remove("hidden");
-    $("#kanaly").scrollIntoView({ behavior: "smooth", block: "center" });
+    $("#kanaly").scrollIntoView({ behavior: "smooth", block: "nearest" });
   };
   $("#prijmout").onclick = () => odpovez(true);
   $("#odmitnout").onclick = () => odpovez(false);
