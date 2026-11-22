@@ -1,0 +1,26 @@
+{
+  "name": "nabidka-z-hlasu",
+  "version": "1.0.0",
+  "description": "Řemeslník nadiktuje zakázku, zákazník dostane čistou cenovou nabídku.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hynekoliver3-a11y/faktury.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hynekoliver3-a11y/faktury/issues"
+  },
+  "homepage": "https://github.com/hynekoliver3-a11y/faktury#readme",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}

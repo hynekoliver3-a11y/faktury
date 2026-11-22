@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Cenová nabídka</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <div id="obsah"><p class="muted">Načítám nabídku…</p></div>
+
+  <div id="akce" class="card no-print hidden" style="margin-top:14px">
+    <div id="stav"></div>
+    <div id="tlacitka">
+      <label for="zprava" style="margin-top:0">Zpráva pro dodavatele (nepovinné)</label>
+      <textarea id="zprava" style="min-height:60px" placeholder="Např. vyhovuje mi úterý odpoledne"></textarea>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" id="prijmout">Přijmout nabídku</button>
+        <button class="btn" id="odmitnout">Odmítnout</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" onclick="print()">Stáhnout PDF / Tisk</button>
+      <a class="btn hidden" id="volat">Zavolat</a>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { renderNabidka, esc } from "/shared.js";
+const id = location.pathname.split("/").pop();
+const $ = (s) => document.querySelector(s);
+
+const r = await fetch("/api/quotes/" + id);
+if (!r.ok) {
+  $("#obsah").innerHTML = '<div class="card"><h2>Nabídka nenalezena</h2><p class="muted">Odkaz je neplatný nebo byla nabídka smazána.</p></div>';
+} else {
+  const q = await r.json();
+  document.title = `Cenová nabídka ${q.cislo} – ${q.dodavatel.nazev}`;
+  $("#obsah").innerHTML = renderNabidka(q);
+  $("#akce").classList.remove("hidden");
+  if (q.dodavatel.telefon) { $("#volat").href = "tel:" + q.dodavatel.telefon.replace(/\s/g, ""); $("#volat").classList.remove("hidden"); }
+  ukazStav(q.stav);
+
+  const odpovez = async (akce) => {
+    if (akce === "odmitnout" && !confirm("Opravdu odmítnout nabídku?")) return;
+    const res = await fetch(`/api/quotes/${id}/${akce}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ zprava: $("#zprava").value }) });
+    if (res.ok) ukazStav((await res.json()).stav); else alert("Nepodařilo se odeslat, zkuste to prosím znovu.");
+  };
+  $("#prijmout").onclick = () => odpovez("prijmout");
+  $("#odmitnout").onclick = () => odpovez("odmitnout");
+
+  function ukazStav(stav) {
+    const s = $("#stav");
+    if (stav === "prijata") s.innerHTML = `<h2 style="color:var(--ok)">✓ Nabídka přijata</h2><p class="muted">${esc(q.dodavatel.nazev)} se vám ozve s termínem.</p>`;
+    else if (stav === "odmitnuta") s.innerHTML = `<h2>Nabídka odmítnuta</h2><p class="muted">Děkujeme za odpověď.</p>`;
+    else s.innerHTML = "";
+    $("#tlacitka").classList.toggle("hidden", stav !== "odeslana");
+  }
+}
+</script>
+</body>
+</html>
