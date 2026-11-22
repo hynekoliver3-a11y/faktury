@@ -3,140 +3,161 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#e8590c">
+<meta name="theme-color" content="#f3efe6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Nabídka z hlasu</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icon.svg">
 <link rel="apple-touch-icon" href="/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="wrap">
-  <div class="topbar">
-    <a class="brand" href="/" style="color:inherit;text-decoration:none">🎙️ Nabídka z hlasu</a>
-    <nav class="tabs">
+  <header class="topbar">
+    <a class="wordmark" href="/">nabídka<span>/</span>z hlasu</a>
+    <nav class="tabs" aria-label="Sekce">
       <button data-tab="nova" class="active">Nová</button>
-      <button data-tab="historie">Nabídky</button>
+      <button data-tab="historie">Odeslané</button>
       <button data-tab="nastaveni">Nastavení</button>
     </nav>
-  </div>
+  </header>
 
-  <!-- ===== NOVÁ: krok 1 diktát ===== -->
+  <!-- ===== Krok 1: zadání ===== -->
   <section id="tab-nova">
     <div id="krok-diktat">
       <div id="setup-hint" class="warn hidden" style="margin-bottom:14px">
-        Nejdřív vyplňte <a href="#" data-goto="nastaveni">Nastavení</a> — jméno firmy, IČO a hodinovou sazbu. Objeví se na každé nabídce.
+        Než pošleš první nabídku, vyplň <a href="#" data-goto="nastaveni">Nastavení</a>: jméno nebo firmu, IČO a hodinovou sazbu.
       </div>
-      <div class="card mic-area">
-        <button id="mic" class="mic" aria-label="Nahrávat">
+
+      <div class="mode" role="group" aria-label="Způsob zadání">
+        <button type="button" data-mode="mluvit" aria-pressed="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2Z"/></svg>
+          Mluvit
+        </button>
+        <button type="button" data-mode="psat" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg>
+          Psát
+        </button>
+      </div>
+
+      <div class="card mic-area" id="mic-card">
+        <button id="mic" class="mic" aria-label="Spustit nahrávání">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2Z"/></svg>
         </button>
-        <div class="mic-label" id="mic-label">Klepněte a popište zakázku</div>
-        <div class="muted small" id="mic-sub">Kdo, co, kolik hodin, materiál, ceny. Mluvte normálně.</div>
+        <div class="mic-label" id="mic-label">Klepni a popiš zakázku</div>
+        <div class="muted small" id="mic-sub">Jako bys to říkal kolegovi. Klidně s „ehm“ a opravami.</div>
       </div>
-      <div class="card">
-        <label for="diktat" style="margin-top:0">Přepis (můžete upravit nebo psát)</label>
-        <textarea id="diktat" placeholder="Např.: Pan Novák, Dlouhá 12 Brno, telefon 777 123 456. Výměna vodovodní baterie v koupelně a sifonu pod umyvadlem. Práce dvě hodiny. Baterie Grohe 2 400 korun, sifon 350. Doprava 25 kilometrů. Termín příští týden."></textarea>
-        <div class="row" style="margin-top:12px">
+
+      <div class="card" id="text-card">
+        <label for="diktat" style="margin-top:0" id="diktat-label">Přepis – můžeš ho upravit</label>
+        <textarea id="diktat" class="dictation" placeholder="Novák, Dlouhá 12 Brno, tel. 777 123 456. Výměna baterie v koupelně a sifonu pod umyvadlem. Práce 2 hodiny, baterie Grohe 2 400, sifon 350. Doprava 25 km. Termín příští týden."></textarea>
+        <ul class="hint-list" id="psat-hint">
+          <li>kdo a kde</li><li>co se dělá</li><li>hodiny nebo paušál</li><li>materiál s cenou</li><li>doprava, termín</li>
+        </ul>
+        <div class="row" style="margin-top:14px">
           <button class="btn" id="vymazat">Vymazat</button>
-          <button class="btn primary" id="vytvorit">Vytvořit nabídku</button>
+          <button class="btn accent" id="vytvorit">Udělat nabídku</button>
         </div>
-        <div class="muted small" id="ai-status" style="margin-top:8px"></div>
+        <p class="muted small" id="ai-status" style="margin:10px 0 0"></p>
       </div>
     </div>
 
-    <!-- ===== NOVÁ: krok 2 editace ===== -->
+    <!-- ===== Krok 2: kontrola ===== -->
     <div id="krok-edit" class="hidden">
       <div id="chybi" class="warn hidden" style="margin-bottom:14px"></div>
 
       <div class="card">
-        <label style="margin-top:0">Předmět nabídky</label>
+        <p class="section-title">Zakázka</p>
+        <label for="predmet" style="margin-top:0">Název nabídky</label>
         <input id="predmet">
         <div class="grid2">
-          <div><label>Zákazník</label><input id="z-jmeno" autocomplete="off"></div>
-          <div><label>Telefon</label><input id="z-telefon" type="tel" autocomplete="off"></div>
-          <div><label>E-mail</label><input id="z-email" type="email" autocomplete="off"></div>
-          <div><label>Adresa</label><input id="z-adresa" autocomplete="off"></div>
+          <div><label for="z-jmeno">Zákazník</label><input id="z-jmeno" autocomplete="off"></div>
+          <div><label for="z-telefon">Telefon</label><input id="z-telefon" type="tel" autocomplete="off"></div>
+          <div><label for="z-email">E-mail</label><input id="z-email" type="email" autocomplete="off"></div>
+          <div><label for="z-adresa">Adresa</label><input id="z-adresa" autocomplete="off"></div>
         </div>
       </div>
 
       <div class="card">
-        <h2>Položky</h2>
+        <p class="section-title">Položky</p>
         <div id="polozky"></div>
-        <button class="btn sm" id="pridat">+ Přidat položku</button>
+        <button class="btn sm" id="pridat" style="margin-top:10px">+ Položka</button>
         <div class="totals" id="souhrn"></div>
       </div>
 
       <div class="card">
-        <label style="margin-top:0">Poznámka pro zákazníka</label>
-        <textarea id="poznamka" style="min-height:70px"></textarea>
+        <p class="section-title">Ostatní</p>
+        <label for="poznamka" style="margin-top:0">Poznámka pro zákazníka</label>
+        <textarea id="poznamka" rows="3"></textarea>
         <div class="grid2">
-          <div><label>Číslo nabídky</label><input id="cislo"></div>
-          <div><label>Platnost (dní)</label><input id="platnost" type="number" min="1" inputmode="numeric"></div>
+          <div><label for="cislo">Číslo nabídky</label><input id="cislo" class="mono"></div>
+          <div><label for="platnost">Platí dní</label><input id="platnost" type="number" min="1" inputmode="numeric" class="mono"></div>
         </div>
       </div>
 
       <div class="sticky no-print">
         <div class="inner">
-          <button class="btn" id="zpet">← Diktát</button>
-          <button class="btn primary" id="odeslat">Odeslat zákazníkovi</button>
+          <button class="btn" id="zpet">Zpět</button>
+          <button class="btn accent" id="odeslat">Poslat zákazníkovi</button>
         </div>
       </div>
     </div>
 
-    <!-- ===== NOVÁ: krok 3 odeslání ===== -->
+    <!-- ===== Krok 3: odeslání ===== -->
     <div id="krok-odeslat" class="hidden">
       <div class="card">
-        <h2>✅ Nabídka je připravená</h2>
-        <p class="muted">Pošlete zákazníkovi odkaz. Uvidí čistou nabídku, stáhne si ji jako PDF a odpověď (přijmout/odmítnout) vám přijde SMS, WhatsAppem nebo e-mailem. Nabídka je uložená přímo v odkazu.</p>
-        <input id="odkaz" readonly>
+        <h2>Nabídka je hotová</h2>
+        <p class="muted" style="margin-top:0">Pošli zákazníkovi odkaz. Uvidí nabídku, stáhne si PDF a odpoví ti SMS, WhatsAppem nebo e-mailem.</p>
+        <input id="odkaz" readonly class="mono" style="font-size:13px">
         <div class="row" style="margin-top:12px">
-          <button class="btn primary" id="sdilet">Sdílet…</button>
+          <button class="btn accent" id="sdilet">Sdílet…</button>
           <a class="btn" id="sms">SMS</a>
           <a class="btn" id="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
           <a class="btn" id="mail">E-mail</a>
           <button class="btn" id="kopirovat">Kopírovat</button>
-          <a class="btn" id="nahled" target="_blank" rel="noopener">Náhled / PDF</a>
+          <a class="btn" id="nahled" target="_blank" rel="noopener">Náhled</a>
         </div>
       </div>
-      <button class="btn block" id="dalsi">+ Další nabídka</button>
+      <button class="btn block" id="dalsi">Další nabídka</button>
     </div>
   </section>
 
-  <!-- ===== HISTORIE ===== -->
+  <!-- ===== Odeslané ===== -->
   <section id="tab-historie" class="hidden">
     <div class="card">
-      <h2>Odeslané nabídky</h2>
+      <p class="section-title">Odeslané nabídky · uložené v tomto telefonu</p>
       <div id="seznam"></div>
     </div>
   </section>
 
-  <!-- ===== NASTAVENÍ ===== -->
+  <!-- ===== Nastavení ===== -->
   <section id="tab-nastaveni" class="hidden">
     <form class="card" id="nastaveni-form">
-      <h2>Vaše údaje</h2>
-      <label>Jméno / název firmy *</label><input name="nazev" required>
+      <p class="section-title">Tvoje údaje na nabídce</p>
+      <label style="margin-top:0">Jméno nebo firma *</label><input name="nazev" required>
       <div class="grid2">
-        <div><label>IČO</label><input name="ico" inputmode="numeric"></div>
-        <div><label>DIČ</label><input name="dic"></div>
+        <div><label>IČO</label><input name="ico" inputmode="numeric" class="mono"></div>
+        <div><label>DIČ</label><input name="dic" class="mono"></div>
         <div><label>Telefon</label><input name="telefon" type="tel"></div>
         <div><label>E-mail</label><input name="email" type="email"></div>
       </div>
       <label>Adresa</label><input name="adresa">
       <label class="check"><input type="checkbox" name="platceDph"> Jsem plátce DPH</label>
 
-      <h2 style="margin-top:20px">Ceny a nabídky</h2>
+      <p class="section-title" style="margin-top:26px">Ceny</p>
       <div class="grid2">
-        <div><label>Hodinová sazba (Kč bez DPH)</label><input name="hodinovaSazba" type="number" min="0" inputmode="decimal"></div>
-        <div><label>Doprava (Kč/km)</label><input name="cenaKm" type="number" min="0" step="0.1" inputmode="decimal"></div>
-        <div><label>Sazba DPH (%)</label><input name="sazbaDph" type="number" min="0" inputmode="numeric"></div>
-        <div><label>Platnost nabídky (dní)</label><input name="platnostDni" type="number" min="1" inputmode="numeric"></div>
-        <div><label>Předpona čísla nabídky</label><input name="prefix"></div>
-        <div><label>Další pořadové číslo</label><input name="dalsiCislo" type="number" min="1" inputmode="numeric"></div>
+        <div><label>Hodinová sazba, Kč bez DPH</label><input name="hodinovaSazba" type="number" min="0" inputmode="decimal" class="mono"></div>
+        <div><label>Doprava, Kč za km</label><input name="cenaKm" type="number" min="0" step="0.1" inputmode="decimal" class="mono"></div>
+        <div><label>Sazba DPH, %</label><input name="sazbaDph" type="number" min="0" inputmode="numeric" class="mono"></div>
+        <div><label>Nabídka platí dní</label><input name="platnostDni" type="number" min="1" inputmode="numeric" class="mono"></div>
+        <div><label>Předpona čísla</label><input name="prefix" class="mono"></div>
+        <div><label>Další pořadové číslo</label><input name="dalsiCislo" type="number" min="1" inputmode="numeric" class="mono"></div>
       </div>
-      <button class="btn primary block" style="margin-top:16px">Uložit</button>
-      <div class="muted small" id="ulozeno" style="margin-top:8px"></div>
+      <button class="btn primary block" style="margin-top:18px">Uložit</button>
+      <p class="muted small" id="ulozeno" style="margin:8px 0 0"></p>
     </form>
   </section>
 </div>

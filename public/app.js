@@ -44,7 +44,7 @@ form.addEventListener("submit", (e) => {
     nastaveni[k] = el.type === "checkbox" ? el.checked : (el.type === "number" ? (el.value === "" ? "" : Number(el.value)) : fd.get(k).trim());
   }
   store.set("nastaveni", nastaveni);
-  $("#ulozeno").textContent = "Uloženo ✓";
+  $("#ulozeno").textContent = "Uloženo.";
   $("#setup-hint").classList.toggle("hidden", !!nastaveni.nazev);
   setTimeout(() => ($("#ulozeno").textContent = ""), 2000);
 });
@@ -60,12 +60,26 @@ let rec = null, nahrava = false, zaklad = "";
 const mic = $("#mic");
 
 if (!SR) {
-  $("#mic-label").textContent = "Diktujte přes klávesnici";
-  $("#mic-sub").textContent = "Tento prohlížeč neumí nahrávat přímo. Klepněte do pole níže a použijte mikrofon na klávesnici.";
-  mic.addEventListener("click", () => diktat.focus());
+  $("#mic-label").textContent = "Tady nahrávání nefunguje";
+  $("#mic-sub").textContent = "Přepni na Psát. Diktovat můžeš i tam – mikrofonem na klávesnici telefonu.";
+  mic.addEventListener("click", () => nastavRezim("psat"));
 } else {
   mic.addEventListener("click", () => (nahrava ? stop() : start()));
 }
+
+// ---------- Režim zadání: Mluvit / Psát ----------
+function nastavRezim(r, fokus = true) {
+  if (r === "psat" && nahrava) stop();
+  document.querySelectorAll("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === r)));
+  $("#mic-card").classList.toggle("hidden", r === "psat");
+  $("#text-card").classList.toggle("typing", r === "psat");
+  $("#psat-hint").classList.toggle("hidden", r !== "psat");
+  $("#diktat-label").textContent = r === "psat" ? "Popiš zakázku" : "Přepis – můžeš ho upravit";
+  store.set("rezim", r);
+  if (r === "psat" && fokus) diktat.focus();
+}
+document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => nastavRezim(b.dataset.mode)));
+nastavRezim(store.get("rezim", SR ? "mluvit" : "psat"), false);
 
 function start() {
   rec = new SR();
@@ -83,7 +97,7 @@ function start() {
     store.set("rozpracovanyDiktat", diktat.value);
   };
   rec.onerror = (e) => {
-    if (e.error === "not-allowed" || e.error === "service-not-allowed") alert("Povolte prosím přístup k mikrofonu.");
+    if (e.error === "not-allowed" || e.error === "service-not-allowed") alert("Povol prosím aplikaci přístup k mikrofonu.");
     else if (e.error !== "no-speech" && e.error !== "aborted") console.warn(e.error);
   };
   // Safari/Chrome občas ukončí nahrávání samo — při běžícím nahrávání pokračujeme
@@ -91,19 +105,19 @@ function start() {
   rec.start();
   nahrava = true;
   mic.classList.add("rec");
-  $("#mic-label").textContent = "Poslouchám… klepněte pro konec";
+  $("#mic-label").textContent = "Poslouchám… klepni pro konec";
 }
 function stop() {
   nahrava = false;
   rec?.stop();
   mic.classList.remove("rec");
-  $("#mic-label").textContent = "Klepněte a pokračujte v diktování";
+  $("#mic-label").textContent = "Klepni a pokračuj";
 }
 
 $("#vymazat").addEventListener("click", () => { if (!diktat.value || confirm("Smazat přepis?")) { diktat.value = ""; store.set("rozpracovanyDiktat", ""); } });
 
 fetch("/api/status").then((r) => r.json()).then((s) => {
-  $("#ai-status").textContent = s.ai ? "" : "AI není zapnuté (chybí API klíč na serveru) — použije se jednoduché rozpoznání.";
+  $("#ai-status").textContent = s.ai ? "" : "AI není zapnuté (na serveru chybí API klíč). Položky se rozpoznají jen zjednodušeně.";
 }).catch(() => {});
 
 // ---------- Vytvoření nabídky ----------
@@ -131,7 +145,7 @@ $("#vytvorit").addEventListener("click", async () => {
     alert("Nepodařilo se vytvořit nabídku: " + e.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = "Vytvořit nabídku";
+    btn.textContent = "Udělat nabídku";
   }
 });
 
@@ -197,7 +211,7 @@ $("#zpet").addEventListener("click", () => krok("diktat"));
 
 // ---------- Odeslání ----------
 $("#odeslat").addEventListener("click", async () => {
-  if (!nastaveni.nazev) { alert("Vyplňte nejdřív v Nastavení jméno nebo název firmy."); return prepni("nastaveni"); }
+  if (!nastaveni.nazev) { alert("Nejdřív vyplň v Nastavení jméno nebo firmu."); return prepni("nastaveni"); }
   nabidka.polozky = nabidka.polozky.filter((p) => p.popis.trim());
   if (!nabidka.polozky.length) return alert("Nabídka nemá žádné položky.");
   if (nabidka.polozky.some((p) => !Number(p.cena_za_jednotku)) && !confirm("Některé položky mají cenu 0 Kč. Přesto odeslat?")) return;
@@ -249,7 +263,7 @@ function pripravOdeslani(url, celkem) {
   $("#sdilet").onclick = () => navigator.share({ title: "Cenová nabídka", text: zprava }).catch(() => {});
   $("#kopirovat").onclick = async () => {
     try { await navigator.clipboard.writeText(url); } catch { $("#odkaz").select(); document.execCommand("copy"); }
-    $("#kopirovat").textContent = "Zkopírováno ✓";
+    $("#kopirovat").textContent = "Zkopírováno";
     setTimeout(() => ($("#kopirovat").textContent = "Kopírovat"), 1500);
   };
 }
@@ -260,11 +274,11 @@ $("#dalsi").addEventListener("click", () => { nabidka = null; diktat.value = "";
 function vykresliHistorii() {
   const hist = store.get("historie", []);
   const box = $("#seznam");
-  if (!hist.length) { box.innerHTML = '<p class="muted">Zatím žádné nabídky.</p>'; return; }
+  if (!hist.length) { box.innerHTML = '<p class="muted">Zatím jsi nic neposlal.</p>'; return; }
   box.innerHTML = hist.map((h) => `
     <div class="list-item" data-id="${esc(h.id)}">
       <div><strong>${esc(h.predmet || "Nabídka")}</strong><div class="muted small">${esc(h.cislo)} · ${esc(h.zakaznik || "bez jména")} · ${datum(h.datum)}</div></div>
-      <div style="text-align:right;white-space:nowrap">${kc(h.celkem)}</div>
+      <div class="amt">${kc(h.celkem)}</div>
     </div>`).join("");
   box.querySelectorAll(".list-item").forEach((el) => el.addEventListener("click", () => {
     const h = store.get("historie", []).find((x) => x.id === el.dataset.id);

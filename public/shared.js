@@ -36,7 +36,7 @@ export function renderNabidka(q) {
       <div>
         <div class="doc-label">Cenová nabídka</div>
         <h1>${esc(q.predmet || "Cenová nabídka")}</h1>
-        <div class="muted">č. ${esc(q.cislo)} · ${datum(q.datum)} · platí do ${datum(platnostDo)}</div>
+        <div class="meta muted">č. ${esc(q.cislo)} · ${datum(q.datum)} · platí do ${datum(platnostDo)}</div>
       </div>
     </header>
     <section class="doc-parties">
